@@ -1,6 +1,30 @@
 slam_toolbox:
   ros__parameters:
 
+  
+    # ROS Parameters
+    odom_frame: odom   #>> /odom is our odometry frame
+    map_frame: map   #>> wrt "map" frame we will be getting the map
+    base_frame: base_footprint  #>> eBot base_frame is base_footprint, you can check it using `ros2 run tf2_tools view_frames`
+    scan_topic: /scan  #>> LiDAR data is on this topic
+    mode: mapping #localization  #>> Currently we will be mapping using slam-toolbox.
+
+    # Loading the params
+    declare_mapper_online_async_param_cmd = DeclareLaunchArgument(
+        'async_param',
+        default_value=os.path.join(ebot_nav2_dir, 'config', 'mapper_params_online_async.yaml'),
+        description='Set mappers online async param file')
+
+    # Adding slam-toolbox, with online_async_launch.py
+    mapper_online_async_param_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(get_package_share_directory('slam_toolbox'), 'launch', 'online_async_launch.py'),
+        ),
+        launch_arguments=[('slam_params_file', LaunchConfiguration('async_param'))],
+    )
+
+
+
     # Plugin params
     solver_plugin: solver_plugins::CeresSolver
     ceres_linear_solver: SPARSE_NORMAL_CHOLESKY
